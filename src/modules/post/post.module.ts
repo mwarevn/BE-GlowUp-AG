@@ -5,6 +5,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from 'src/modules/post/schemas/post.schema';
 import { UserModule } from 'src/modules/user/user.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { CategoryModule } from 'src/modules/category/category.module';
+import { TagModule } from 'src/modules/tag/tag.module';
+import { UploadModule } from 'src/modules/upload/upload.module';
 
 @Module({
   controllers: [PostController],
@@ -13,6 +16,9 @@ import { AuthModule } from 'src/modules/auth/auth.module';
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
     UserModule,
     AuthModule,
+    CategoryModule,
+    TagModule,
+    // UploadModule,
   ],
 })
 export class PostModule {}

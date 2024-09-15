@@ -25,10 +25,10 @@ export class Post extends Document {
   content: string;
 
   @Prop({ required: true })
-  tags: Pick<ITagRespone, '_id'>[];
+  tags: string[];
 
   @Prop({ required: true })
-  categories: Pick<ICategoryRespone, '_id'>[];
+  categories: string[];
 
   @Prop({ required: true })
   author: string;

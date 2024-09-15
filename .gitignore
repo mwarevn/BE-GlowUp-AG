@@ -6,6 +6,7 @@
 /*.spec*
 /*/*.spec*
 /*/*/*.spec*
+/*/*/*/*.spec*
 # Logs
 logs
 *.log

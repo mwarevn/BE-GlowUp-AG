@@ -5,9 +5,9 @@ import { PostDocument } from 'src/modules/post/schemas/post.schema';
 
 @Injectable()
 export class PostService {
-  constructor(
-    @InjectModel(Post.name) private readonly PostModel: Model<PostDocument>,
-  ) {}
+  // constructor(
+  //   @InjectModel(Post.name) private readonly PostModel: Model<PostDocument>,
+  // ) {}
 
   async getAllPosts() {}
 }
