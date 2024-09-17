@@ -8,6 +8,7 @@ import * as express from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import * as sh from 'shelljs';
 import * as fs from 'fs';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 const VPS_KEY = './private.pem';
 
 async function bootstrap() {
@@ -30,6 +31,18 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // swagger
+
+  const config = new DocumentBuilder()
+    .setTitle('API docs - minhcuder')
+    .setDescription('The document of API for DATN')
+    .setVersion('1.0')
+    .addTag('api')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+  // end
 
   await app.listen(PORT, () => {
     console.log(`Application running on port: ${PORT}`);
