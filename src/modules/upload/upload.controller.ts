@@ -15,7 +15,7 @@ import { createHash } from 'crypto';
 import { Request, Response } from 'express';
 import { UploadService } from 'src/modules/upload/upload.service';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/common/guards/roles.guard';
+import { AdminGuard } from 'src/common/guards/roles.guard';
 
 const storageOptions = multer.diskStorage({
   filename: (req, file, cb) => {
@@ -55,7 +55,7 @@ const uploadSingleImageInterceptor = () =>
 export class UploadController {
   constructor(private uploadService: UploadService) {}
   @Post('picture')
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminGuard)
   @UseInterceptors(uploadSingleImageInterceptor())
   uploadPicture(@UploadedFile() file: Express.Multer.File) {
     const fileLink = file.filename;

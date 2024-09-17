@@ -32,7 +32,7 @@ export class User extends Document {
   @Prop({})
   avatar: string;
 
-  @Prop({ enum: AccountRole, default: AccountRole.BasicUser })
+  @Prop({ enum: AccountRole, default: AccountRole.Customer })
   role: AccountRole;
 
   @Prop()

@@ -1,14 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
+import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import { ValidationPipe } from '@nestjs/common';
 import * as sh from 'shelljs';
 import * as fs from 'fs';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as csurf from 'csurf';
+
 const VPS_KEY = './private.pem';
 
 async function bootstrap() {
@@ -21,7 +24,11 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
+  // app protection
   app.enableCors();
+  // app.use(csurf());
+  // app.use(helmet());
+
   // validation data
   app.useGlobalPipes(
     new ValidationPipe({

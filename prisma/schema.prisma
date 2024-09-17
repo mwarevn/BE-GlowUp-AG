@@ -21,7 +21,8 @@ enum Gender {
 
 enum AccountRole {
   Admin
-  BasicUser
+  Customer
+  Stylish
 }
 
 enum AccountType {
@@ -45,7 +46,7 @@ model User {
   email String @unique
   
   gender Gender?
-  role AccountRole @default(BasicUser)
+  role AccountRole @default(Customer)
   account_type AccountType @default(Basic)
 
   full_name String
