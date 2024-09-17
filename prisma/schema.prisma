@@ -22,7 +22,7 @@ enum Gender {
 enum AccountRole {
   Admin
   Customer
-  Stylish
+  Stylist
 }
 
 enum AccountType {
