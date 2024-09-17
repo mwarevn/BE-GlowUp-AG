@@ -33,7 +33,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // swagger
-
   const config = new DocumentBuilder()
     .setTitle('API docs - minhcuder')
     .setDescription('The document of API for DATN')

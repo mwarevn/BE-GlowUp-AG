@@ -19,12 +19,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // [POST] - /auth/login - login
   async loginSystem(loginDto: LoginDto, res: Response) {
     let exitstsUser: User;
 
     // find exists user by email
-    // eslint-disable-next-line prettier/prettier
     loginDto.email &&
       (exitstsUser = await this.prisma.user.findUnique({
         where: { email: loginDto.email },
@@ -40,7 +38,6 @@ export class AuthService {
       }));
 
     if (!exitstsUser) {
-      // eslint-disable-next-line prettier/prettier
       throw new HttpException(
         'Tài khoản hoặc mật khẩu không chính xác!',
         HttpStatus.UNAUTHORIZED,
@@ -51,14 +48,12 @@ export class AuthService {
       throw new BadRequestException('Phương thức đăng nhập không hợp lệ!');
     }
 
-    // eslint-disable-next-line prettier/prettier
     const isMatch = await this.verifyPassword(
       loginDto.password,
       exitstsUser.password,
     );
 
     if (!isMatch) {
-      // eslint-disable-next-line prettier/prettier
       throw new HttpException(
         'Tài khoản hoặc mật khẩu không chính xác!',
         HttpStatus.UNAUTHORIZED,
@@ -124,7 +119,6 @@ export class AuthService {
 
   async generateToken(payload, type = 'access') {
     return await this.jwtService.signAsync(payload, {
-      // eslint-disable-next-line prettier/prettier
       secret:
         type == 'access'
           ? process.env.JWT_ACCESS_SECRET

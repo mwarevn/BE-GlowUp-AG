@@ -29,13 +29,21 @@ enum AccountType {
   Basic
 }
 
+enum Rank {
+  Bronze
+  Glod
+  Diamon
+  Silver
+}
+
+
 
 
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   username String? @unique
   email String @unique
-
+  
   gender Gender?
   role AccountRole @default(BasicUser)
   account_type AccountType @default(Basic)
@@ -46,7 +54,10 @@ model User {
   password String?
   avatar String
   date_of_birth DateTime?
-  email_verified Boolean @default(false)
   address String?
+  rank Rank @default(Bronze)
   point Int?
+  email_verified Boolean @default(false)
+
 }
+

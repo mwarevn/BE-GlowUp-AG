@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_ACCESS_SECRET,
       });
 
-      const detailsUser = await this.getDetailsUserByIdFromPayload(payload._id);
+      const detailsUser = await this.getDetailsUserByIdFromPayload(payload.id);
 
       if (!detailsUser) {
         throw new UnauthorizedException();
@@ -58,11 +58,11 @@ export class AuthGuard implements CanActivate {
           delete refreshPayload.iat;
 
           access_token = await this.authService.generateToken({
-            _id: refreshPayload._id,
+            id: refreshPayload.id,
           });
 
           const detailsUser = await this.getDetailsUserByIdFromPayload(
-            refreshPayload._id,
+            refreshPayload.id,
           );
 
           console.log('generated new access token!');
@@ -93,7 +93,7 @@ export class AuthGuard implements CanActivate {
     return request.cookies.refresh_token || undefined;
   }
 
-  private async getDetailsUserByIdFromPayload(_id: string) {
-    return await this.userService.getDetailsUserById(_id);
+  private async getDetailsUserByIdFromPayload(id: string) {
+    return await this.userService.getDetailsUserById(id);
   }
 }

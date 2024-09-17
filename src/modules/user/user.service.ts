@@ -55,11 +55,11 @@ export class UserService {
     }
   }
 
-  async getDetailsUserById(_id: string) {
+  async getDetailsUserById(id: string) {
     try {
       const detailsUser = await this.prisma.user.findUnique({
         where: {
-          id: _id,
+          id: id,
         },
       });
       return detailsUser;
