@@ -4,17 +4,14 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response } from 'express';
-import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
-import { User } from 'src/modules/user/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-// import { LoginDto } from 'src/modules/user/dto/login.dto';
+import { PrismaService } from 'src/modules/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(private prisma: PrismaService) {}
 
   // [POST] - /auth/register - create new account
   async registerAccount(
@@ -29,14 +26,13 @@ export class UserService {
       createUserDto.password = hashedPassword;
 
       // save account to db
-      const createdUser = await new this.userModel(createUserDto).save();
-      const responseData = createdUser.toObject();
-      delete responseData.password;
-      delete responseData._id;
+      const createdUser = await this.prisma.user.create({
+        data: createUserDto as any,
+      });
+      delete createdUser.password;
+      delete createdUser.id;
 
-      res
-        .status(HttpStatus.CREATED)
-        .json({ success: true, data: responseData });
+      res.status(HttpStatus.CREATED).json({ success: true, data: createdUser });
     } catch (error) {
       const message = [];
       if (error.code === 11000) {
@@ -61,7 +57,11 @@ export class UserService {
 
   async getDetailsUserById(_id: string) {
     try {
-      const detailsUser = await this.userModel.findById(_id);
+      const detailsUser = await this.prisma.user.findUnique({
+        where: {
+          id: _id,
+        },
+      });
       return detailsUser;
     } catch (error) {
       throw new ServiceUnavailableException();
