@@ -1,4 +1,11 @@
-import { IsString, IsEmail, MinLength, IsOptional, IsNotEmpty, IsDefined } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  MinLength,
+  IsOptional,
+  IsNotEmpty,
+  IsDefined,
+} from 'class-validator';
 
 export class LoginDto {
   @IsEmail({}, { message: 'Email không đúng định dạng !' })

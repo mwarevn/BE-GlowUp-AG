@@ -1,34 +1,90 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Res,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { StylistService } from './stylist.service';
 import { CreateStylistDto } from './dto/create-stylist.dto';
 import { UpdateStylistDto } from './dto/update-stylist.dto';
+import { Request, Response } from 'express';
 
 @Controller('stylist')
 export class StylistController {
-  constructor(private readonly stylistService: StylistService) {}
+  constructor(private readonly stylistService: StylistService) { }
 
   @Post()
-  create(@Body() createStylistDto: CreateStylistDto) {
-    return this.stylistService.create(createStylistDto);
+  async create(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() createStylistDto: CreateStylistDto) {
+    try {
+      const newStylist = await this.stylistService.create(createStylistDto);
+      res.status(HttpStatus.CREATED).json({ success: true, data: newStylist });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.stylistService.findAll();
+  async findAll(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const stylist = await this.stylistService.findAll();
+      res.status(HttpStatus.OK).json({ success: true, data: stylist });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.stylistService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const stylist = await this.stylistService.findOne(id);
+      res.status(HttpStatus.OK).json({ success: true, data: stylist });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStylistDto: UpdateStylistDto) {
-    return this.stylistService.update(+id, updateStylistDto);
+  async update(@Param('id') id: string,
+    @Body() updateStylistDto: UpdateStylistDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const stylist = await this.stylistService.update(id, updateStylistDto);
+      res.status(HttpStatus.OK).json({ success: true, data: stylist });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.stylistService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const stylist = await this.stylistService.remove(id);
+      res.status(HttpStatus.OK).json({ success: true, data: stylist });
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 }
