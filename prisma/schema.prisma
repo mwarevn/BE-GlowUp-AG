@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_CONECTION_STRING")
+}
+
+enum Gender {
+  Male
+  Female
+  Unknown
+}
+
+enum AccountRole {
+  Admin
+  Customer
+  Stylist
+}
+
+enum AccountType {
+  Google
+  Basic
+}
+
+enum Rank {
+  Bronze
+  Glod
+  Diamon
+  Silver
+}
+
+
+
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  username String? @unique
+  email String @unique
+  
+  gender Gender?
+  role AccountRole @default(Customer)
+  account_type AccountType @default(Basic)
+
+  full_name String
+  phone_number String?
+  googleId String? @unique
+  password String?
+  avatar String
+  date_of_birth DateTime?
+  address String?
+  rank Rank @default(Bronze)
+  point Int?
+  email_verified Boolean @default(false)
+
+}
+
+
+model Stylist {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  full_name String @unique
+  phone_number String @unique
+  email String @unique
+  experience String @default("no experience")
+  avatar String @default("https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg")
+  rating Float @default(0)
+  work_schedule DateTime[] @default([])
+  position String? @default("Stylist")
+  gender Gender? @default(Unknown)
+  isActive Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

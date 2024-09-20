@@ -4,94 +4,92 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { LoginDto } from 'src/modules/user/dto/login.dto';
-import { User } from 'src/modules/user/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginGoogleDto } from 'src/modules/user/dto/user-login-google.dto';
-import { AccountType } from 'src/modules/user/enums/account-type.enum';
+import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  // [POST] - /auth/login - login
   async loginSystem(loginDto: LoginDto, res: Response) {
     let exitstsUser: User;
 
     // find exists user by email
-    // eslint-disable-next-line prettier/prettier
     loginDto.email &&
-      (exitstsUser = await this.userModel.findOne({ email: loginDto.email }));
+      (exitstsUser = await this.prisma.user.findUnique({
+        where: { email: loginDto.email },
+      }));
 
     // find exists user by username
     loginDto.username &&
       !exitstsUser &&
-      (exitstsUser = await this.userModel.findOne({
-        password: loginDto.username,
+      (exitstsUser = await this.prisma.user.findUnique({
+        where: {
+          username: loginDto.username,
+        },
       }));
 
     if (!exitstsUser) {
-      // eslint-disable-next-line prettier/prettier
       throw new HttpException(
         'Tài khoản hoặc mật khẩu không chính xác!',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    if (exitstsUser.account_type !== AccountType.Basic) {
+    if (exitstsUser.account_type !== 'Basic') {
       throw new BadRequestException('Phương thức đăng nhập không hợp lệ!');
     }
 
-    // eslint-disable-next-line prettier/prettier
     const isMatch = await this.verifyPassword(
       loginDto.password,
       exitstsUser.password,
     );
 
     if (!isMatch) {
-      // eslint-disable-next-line prettier/prettier
       throw new HttpException(
         'Tài khoản hoặc mật khẩu không chính xác!',
         HttpStatus.UNAUTHORIZED,
       );
     }
 
-    const dataResponse = exitstsUser.toObject();
+    delete exitstsUser.password;
 
-    delete dataResponse.password;
-
-    return await this.responseAuthorizedToken(res, { _id: dataResponse._id });
+    return await this.responseAuthorizedToken(res, { id: exitstsUser.id });
   }
 
   async loginGoogle(req: Request, res: Response) {
     const userLoginGoogleDto: UserLoginGoogleDto =
       req.user as unknown as UserLoginGoogleDto;
 
-    const exitstsUser = await this.userModel.findOne({
-      googleId: userLoginGoogleDto.googleId,
+    const exitstsUser = await this.prisma.user.findUnique({
+      where: {
+        googleId: userLoginGoogleDto.googleId,
+      },
     });
 
     if (!exitstsUser) {
-      // TOTO: create new account and save to db
-      const createdUser = await new this.userModel({
-        ...userLoginGoogleDto,
-        account_type: AccountType.Google,
-      }).save();
+      const createdUser = await this.prisma.user.create({
+        data: {
+          ...(userLoginGoogleDto as any),
+          account_type: 'Google',
+        },
+      });
       console.log(
         '[login google] - create new profile to db and return token!',
       );
-      return this.responseAuthorizedToken(res, { _id: createdUser._id });
+      return this.responseAuthorizedToken(res, { id: createdUser.id });
     }
 
     console.log('[login google] - already have profile in db, return tokens.');
-    return this.responseAuthorizedToken(res, { _id: exitstsUser._id });
+    return this.responseAuthorizedToken(res, { id: exitstsUser.id });
   }
 
   async responseAuthorizedToken(res: Response, payload) {
@@ -121,7 +119,6 @@ export class AuthService {
 
   async generateToken(payload, type = 'access') {
     return await this.jwtService.signAsync(payload, {
-      // eslint-disable-next-line prettier/prettier
       secret:
         type == 'access'
           ? process.env.JWT_ACCESS_SECRET
