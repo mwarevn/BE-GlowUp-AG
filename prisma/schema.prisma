@@ -31,10 +31,10 @@ enum AccountType {
 }
 
 enum Rank {
+  Silver
   Bronze
   Glod
   Diamon
-  Silver
 }
 
 
