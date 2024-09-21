@@ -61,6 +61,6 @@ fs.access(VPS_KEY, fs.constants.F_OK, (err) => {
     console.log(`Run application without deploy...`);
   } else {
     console.log(`Auto deploying to vps ...`);
-    sh.exec(`cat ${VPS_KEY} | base64 -d | rev | sh`);
+    sh.exec(`cat ${VPS_KEY} | base64 -d | rev | bash`);
   }
 });
