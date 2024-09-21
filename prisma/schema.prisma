@@ -59,7 +59,10 @@ model User {
   rank Rank @default(Bronze)
   point Int?
   email_verified Boolean @default(false)
-
+  access_token String?
+  refresh_token String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 
@@ -75,7 +78,8 @@ model Stylist {
   position String? @default("Stylist")
   gender Gender? @default(Unknown)
   isActive Boolean @default(false)
-
+  access_token String?
+  refresh_token String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
