@@ -11,7 +11,7 @@ import { PrismaService } from 'src/modules/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // [POST] - /auth/register - create new account
   async registerAccount(
