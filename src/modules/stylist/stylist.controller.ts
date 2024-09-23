@@ -10,21 +10,25 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { StylistService } from './stylist.service';
 import { CreateStylistDto } from './dto/create-stylist.dto';
 import { UpdateStylistDto } from './dto/update-stylist.dto';
 import { Request, Response } from 'express';
+import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 
 @Controller('stylist')
 export class StylistController {
-  constructor(private readonly stylistService: StylistService) { }
+  constructor(private readonly stylistService: StylistService) {}
 
   @Post()
   async create(
     @Req() req: Request,
     @Res() res: Response,
-    @Body() createStylistDto: CreateStylistDto) {
+    @Body() createStylistDto: CreateStylistDto,
+  ) {
     try {
       const newStylist = await this.stylistService.create(createStylistDto);
       res.status(HttpStatus.CREATED).json({ success: true, data: newStylist });
@@ -34,10 +38,7 @@ export class StylistController {
   }
 
   @Get()
-  async findAll(
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
+  async findAll(@Req() req: Request, @Res() res: Response) {
     try {
       const stylist = await this.stylistService.findAll();
       res.status(HttpStatus.OK).json({ success: true, data: stylist });
@@ -61,7 +62,8 @@ export class StylistController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string,
+  async update(
+    @Param('id') id: string,
     @Body() updateStylistDto: UpdateStylistDto,
     @Req() req: Request,
     @Res() res: Response,
@@ -75,10 +77,12 @@ export class StylistController {
   }
 
   @Delete(':id')
+  @UseInterceptors(uploadSingleImageInterceptor())
   async remove(
     @Param('id') id: string,
     @Req() req: Request,
     @Res() res: Response,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     try {
       const stylist = await this.stylistService.remove(id);
