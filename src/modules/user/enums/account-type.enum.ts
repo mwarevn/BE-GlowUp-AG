@@ -1,4 +1,4 @@
 export enum AccountType {
-  Google,
-  Basic,
+  GOOGLE,
+  BASIC,
 }

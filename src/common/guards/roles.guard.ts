@@ -5,8 +5,9 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
+import { AccountRole } from '@prisma/client';
 import { Request } from 'express';
-import { AccountRole } from 'src/modules/user/enums/role.enum';
+// import { AccountRole } from 'src/modules/user/enums/role.enum';
 
 const compareRole = (req: Request, role: AccountRole): boolean => {
   return req['user']['role'] === role;
@@ -16,7 +17,7 @@ const compareRole = (req: Request, role: AccountRole): boolean => {
 export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    return compareRole(request, AccountRole.Admin);
+    return compareRole(request, AccountRole.ADMIN);
   }
 }
 
@@ -24,6 +25,6 @@ export class AdminGuard implements CanActivate {
 export class CustomerGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    return compareRole(request, AccountRole.Customer);
+    return compareRole(request, AccountRole.CUSTOMER);
   }
 }

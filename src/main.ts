@@ -9,8 +9,6 @@ import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as protectAPI from 'protect-api';
 
-const VPS_KEY = './private.dat';
-
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const PORT = process.env.PORT || 3000;

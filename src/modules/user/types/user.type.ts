@@ -1,5 +1,5 @@
+import { AccountRole } from '@prisma/client';
 import { Gender } from 'src/modules/user/enums/gender.enum';
-import { AccountRole } from 'src/modules/user/enums/role.enum';
 
 export interface IUserResponse {
   id: string;
