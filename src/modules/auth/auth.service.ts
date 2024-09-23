@@ -11,6 +11,11 @@ import { JwtService } from '@nestjs/jwt';
 import { UserLoginGoogleDto } from 'src/modules/user/dto/user-login-google.dto';
 import { AccountType, User } from '@prisma/client';
 import { UserService } from 'src/modules/user/user.service';
+import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+
+export interface JWTPayload {
+  id: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -74,19 +79,16 @@ export class AuthService {
         account_type: AccountType.GOOGLE,
       });
 
-      console.log(
-        '[login google] - create new profile to db and return token!',
-      );
       return this.responseAuthorizedToken(res, { id: createdUser.id });
     }
-
-    console.log('[login google] - already have profile in db, return tokens.');
     return this.responseAuthorizedToken(res, { id: exitstsUser.id });
   }
 
-  async responseAuthorizedToken(res: Response, payload) {
+  async responseAuthorizedToken(res: Response, payload: JWTPayload) {
     const access_token = await this.generateToken(payload),
       refresh_token = await this.generateToken(payload, 'refresh');
+
+    this.storeToken({ id: payload.id }, access_token, refresh_token);
 
     res.cookie('access_token', access_token, { httpOnly: true, secure: false });
     res.cookie('refresh_token', refresh_token, {
@@ -95,10 +97,8 @@ export class AuthService {
     });
 
     const data = {
-      tokens: {
-        access_token,
-        refresh_token,
-      },
+      access_token,
+      refresh_token,
       user: payload,
     };
 
@@ -107,6 +107,16 @@ export class AuthService {
 
   async verifyPassword(password: string, hash: string): Promise<boolean> {
     return await bcrypt.compare(password, hash);
+  }
+
+  async storeToken(where: any, access_token: string, refresh_token: string) {
+    return await PrismaDB.user.update({
+      where,
+      data: {
+        access_token,
+        refresh_token,
+      },
+    });
   }
 
   async generateToken(payload, type = 'access') {
