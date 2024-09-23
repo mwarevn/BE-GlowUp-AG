@@ -14,27 +14,27 @@ datasource db {
 }
 
 enum Gender {
-  Male
-  Female
-  Unknown
+  MALE
+  FEMALE
+  UNKNOWN
 }
 
 enum AccountRole {
-  Admin
-  Customer
-  Stylist
+  ADMIN
+  CUSTOMER
+  STYLIST
 }
 
 enum AccountType {
-  Google
-  Basic
+  GOOGLE
+  BASIC
 }
 
 enum Rank {
-  Silver
-  Bronze
-  Glod
-  Diamon
+  SILVER
+  BRONZE
+  GLOD
+  DIAMON
 }
 
 
@@ -42,12 +42,11 @@ enum Rank {
 
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  username String? @unique
   email String @unique
   
   gender Gender?
-  role AccountRole @default(Customer)
-  account_type AccountType @default(Basic)
+  role AccountRole @default(CUSTOMER)
+  account_type AccountType @default(BASIC)
 
   full_name String
   phone_number String?
@@ -56,11 +55,14 @@ model User {
   avatar String
   date_of_birth DateTime?
   address String?
-  rank Rank @default(Bronze)
+  rank Rank @default(BRONZE)
   point Int?
   email_verified Boolean @default(false)
-  access_token String?
-  refresh_token String?
+
+  access_token String @default("")
+  refresh_token String @default("")
+
+  deleted   Boolean  @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -76,10 +78,10 @@ model Stylist {
   rating Float @default(0)
   work_schedule DateTime[] @default([])
   position String? @default("Stylist")
-  gender Gender? @default(Unknown)
+  gender Gender? @default(UNKNOWN)
   isActive Boolean @default(false)
-  access_token String?
-  refresh_token String?
+  access_token String @default("")
+  refresh_token String @default("")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }

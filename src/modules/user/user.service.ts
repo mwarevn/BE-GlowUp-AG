@@ -8,63 +8,32 @@ import { Request, Response } from 'express';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { UserEntity } from 'src/modules/user/entitys/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  // [POST] - /auth/register - create new account
-  async registerAccount(
-    req: Request,
-    res: Response,
-    createUserDto: CreateUserDto,
-  ) {
-    try {
-      // hash passwd before save
-      const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
-      createUserDto.password = hashedPassword;
+  // register new account
+  async registerAccount(createUserDto: CreateUserDto) {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+    createUserDto.password = hashedPassword;
 
-      // save account to db
-      const createdUser = await this.prisma.user.create({
-        data: createUserDto as any,
-      });
-      delete createdUser.password;
-      delete createdUser.id;
+    const createdUser = await this.createUser({
+      data: createUserDto as any,
+    });
 
-      res.status(HttpStatus.CREATED).json({ success: true, data: createdUser });
-    } catch (error) {
-      const message = [];
-      if (error.code === 11000) {
-        if (error.keyValue.email) {
-          message.push('Email đã được sử dụng!');
-        }
-
-        if (error.keyValue.username) {
-          message.push('Username đã được sử dụng!');
-        }
-
-        if (error.keyValue.phone_number) {
-          message.push('Số điện thoại đã được sử dụng!');
-        }
-      } else {
-        message.push('Unknown error!');
-      }
-
-      throw new HttpException({ message }, HttpStatus.BAD_REQUEST);
-    }
+    return new UserEntity(createdUser);
   }
 
-  async getDetailsUserById(id: string) {
-    try {
-      const detailsUser = await this.prisma.user.findUnique({
-        where: {
-          id: id,
-        },
-      });
-      return detailsUser;
-    } catch (error) {
-      throw new ServiceUnavailableException();
-    }
+  // get unique user by codition
+  async getUser(where: any) {
+    return await this.prisma.user.findUnique({ where });
+  }
+
+  // create user with input data
+  async createUser(data: any) {
+    return await this.prisma.user.create({ data });
   }
 }

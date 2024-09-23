@@ -6,14 +6,12 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
-import { AuthService } from 'src/modules/auth/auth.service';
 import { UserService } from 'src/modules/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private authService: AuthService,
     private userService: UserService,
   ) {}
 
@@ -33,7 +31,7 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_ACCESS_SECRET,
       });
 
-      const detailsUser = await this.getDetailsUserByIdFromPayload(payload.id);
+      const detailsUser = await this.userService.getUser({ id: payload.id });
 
       if (!detailsUser) {
         throw new UnauthorizedException();
@@ -57,13 +55,17 @@ export class AuthGuard implements CanActivate {
           delete refreshPayload.exp;
           delete refreshPayload.iat;
 
-          access_token = await this.authService.generateToken({
+          access_token = await this.jwtService.signAsync(
+            { id: refreshPayload.id },
+            {
+              secret: process.env.JWT_ACCESS_SECRET,
+              expiresIn: '8m',
+            },
+          );
+
+          const detailsUser = await this.userService.getUser({
             id: refreshPayload.id,
           });
-
-          const detailsUser = await this.getDetailsUserByIdFromPayload(
-            refreshPayload.id,
-          );
 
           console.log('generated new access token!');
           response.cookie('access_token', access_token, {
@@ -91,9 +93,5 @@ export class AuthGuard implements CanActivate {
 
   private extractRefreshTokenFromHeader(request: Request): string | undefined {
     return request.cookies.refresh_token || undefined;
-  }
-
-  private async getDetailsUserByIdFromPayload(id: string) {
-    return await this.userService.getDetailsUserById(id);
   }
 }

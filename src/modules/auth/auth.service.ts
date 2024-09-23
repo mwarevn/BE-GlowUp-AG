@@ -9,32 +9,28 @@ import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserLoginGoogleDto } from 'src/modules/user/dto/user-login-google.dto';
-import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { AccountType, User } from '@prisma/client';
+import { UserService } from 'src/modules/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   async loginSystem(loginDto: LoginDto, res: Response) {
     let exitstsUser: User;
 
-    // find exists user by email
     loginDto.email &&
-      (exitstsUser = await this.prisma.user.findUnique({
-        where: { email: loginDto.email },
+      (exitstsUser = await this.userService.getUser({
+        email: loginDto.email,
       }));
 
-    // find exists user by username
     loginDto.username &&
       !exitstsUser &&
-      (exitstsUser = await this.prisma.user.findUnique({
-        where: {
-          username: loginDto.username,
-        },
+      (exitstsUser = await this.userService.getUser({
+        username: loginDto.username,
       }));
 
     if (!exitstsUser) {
@@ -44,7 +40,7 @@ export class AuthService {
       );
     }
 
-    if (exitstsUser.account_type !== 'Basic') {
+    if (exitstsUser.account_type !== 'BASIC') {
       throw new BadRequestException('Phương thức đăng nhập không hợp lệ!');
     }
 
@@ -66,22 +62,18 @@ export class AuthService {
   }
 
   async loginGoogle(req: Request, res: Response) {
-    const userLoginGoogleDto: UserLoginGoogleDto =
-      req.user as unknown as UserLoginGoogleDto;
+    const userLoginGoogleDto = req.user as unknown as UserLoginGoogleDto;
 
-    const exitstsUser = await this.prisma.user.findUnique({
-      where: {
-        googleId: userLoginGoogleDto.googleId,
-      },
+    const exitstsUser = await this.userService.getUser({
+      googleId: userLoginGoogleDto.googleId,
     });
 
     if (!exitstsUser) {
-      const createdUser = await this.prisma.user.create({
-        data: {
-          ...(userLoginGoogleDto as any),
-          account_type: 'Google',
-        },
+      const createdUser = await this.userService.createUser({
+        ...(userLoginGoogleDto as any),
+        account_type: AccountType.GOOGLE,
       });
+
       console.log(
         '[login google] - create new profile to db and return token!',
       );

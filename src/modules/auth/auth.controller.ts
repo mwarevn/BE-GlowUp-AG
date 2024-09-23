@@ -27,7 +27,7 @@ export class AuthController {
     @Res() res: Response,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return this.userService.registerAccount(req, res, createUserDto);
+    return this.userService.registerAccount(createUserDto);
   }
 
   @Post('login')
