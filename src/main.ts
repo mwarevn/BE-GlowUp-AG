@@ -8,6 +8,9 @@ import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as protectAPI from 'protect-api';
+import * as appFirebase from "../firebase/firebase"
+
+// console.log(appFirebase)
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -36,16 +39,17 @@ async function bootstrap() {
 
   // swagger
   const config = new DocumentBuilder()
-    .setTitle('API docs - minhcuder')
+    .setTitle('API docs - DATN')
     .setDescription('The document of API for DATN')
     .setVersion('1.0')
     .addTag('api')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api-docs', app, document);
   // end
 
-  await app.listen(PORT).then(() => {
+  await app.listen(PORT, protectAPI).then(() => {
     console.log('Application running on PORT: ' + PORT);
   });
 }

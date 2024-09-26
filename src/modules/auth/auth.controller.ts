@@ -1,15 +1,19 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 import { AuthService } from 'src/modules/auth/auth.service';
+import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { LoginDto } from 'src/modules/user/dto/login.dto';
 import { UserService } from 'src/modules/user/user.service';
@@ -33,6 +37,21 @@ export class AuthController {
   @Post('login')
   loginSystem(@Body() loginDto: LoginDto, @Res() res: Response) {
     return this.authService.loginSystem(loginDto, res);
+  }
+
+  @Get('logout')
+  async logout(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const result = await this.authService.logout(id);
+
+    if (!result) {
+      throw new BadRequestException('Can not logout now !')
+    }
+
+    res.json({success: true})
   }
 
   @Get('google')

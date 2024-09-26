@@ -84,7 +84,17 @@ export class AuthService {
     return this.responseAuthorizedToken(res, { id: exitstsUser.id });
   }
 
-  async logout() {}
+  async logout(id: string) {
+
+    return await PrismaDB.user.update({
+      where: {id},
+      data: {
+        access_token: null,
+        refresh_token: null
+      }
+    })
+
+  }
 
   async responseAuthorizedToken(res: Response, payload: JWTPayload) {
     const access_token = await this.generateToken(payload),
