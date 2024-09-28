@@ -18,24 +18,35 @@ import { CreateStylistDto } from './dto/create-stylist.dto';
 import { UpdateStylistDto } from './dto/update-stylist.dto';
 import { Request, Response } from 'express';
 import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
+import { UploadService } from 'src/modules/upload/upload.service';
 
 @Controller('stylist')
 export class StylistController {
-  constructor(private readonly stylistService: StylistService) {}
+  constructor(private readonly stylistService: StylistService,private uploadService: UploadService) {}
 
   @Post()
+  @UseInterceptors(uploadSingleImageInterceptor())
   async create(
     @Req() req: Request,
     @Res() res: Response,
     @Body() createStylistDto: CreateStylistDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     try {
-      const newStylist = await this.stylistService.create(createStylistDto);
-      res.status(HttpStatus.CREATED).json({ success: true, data: newStylist });
+      const img = await this.uploadService.uploadSingleImageThirdParty(req);
+
+      if (img?.data?.link) {
+        createStylistDto = {...createStylistDto, avatar: img.data.link}
+        const newStylist = await this.stylistService.create(createStylistDto);
+        res.status(HttpStatus.CREATED).json({ success: true, data: newStylist });
+      }
+
+      
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
+
 
   @Get()
   async findAll(@Req() req: Request, @Res() res: Response) {
