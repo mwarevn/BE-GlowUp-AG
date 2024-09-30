@@ -14,13 +14,13 @@ import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
-  @Post('third-party/picture')
-  @UseInterceptors(uploadSingleImageInterceptor())
-  async uploadThirdPartyPicture(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    return res.json(await this.uploadService.uploadSingleImageThirdParty(req));
-  }
+  // @Post('third-party/picture')
+  // @UseInterceptors(uploadSingleImageInterceptor())
+  // async uploadThirdPartyPicture(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Req() req: Request,
+  //   @Res() res: Response,
+  // ) {
+  //   return res.json(await this.uploadService.uploadSingleImageThirdParty(req));
+  // }
 }

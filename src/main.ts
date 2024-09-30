@@ -8,7 +8,6 @@ import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as protectAPI from 'protect-api';
-import * as appFirebase from "../firebase/firebase"
 
 // console.log(appFirebase)
 

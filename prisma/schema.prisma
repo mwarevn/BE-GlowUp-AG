@@ -19,69 +19,50 @@ enum Gender {
   UNKNOWN
 }
 
-enum AccountRole {
+enum Roles {
   ADMIN
   CUSTOMER
   STYLIST
 }
 
-enum AccountType {
-  GOOGLE
-  BASIC
-}
-
 enum Rank {
   SILVER
   BRONZE
-  GLOD
+  GOLD
   DIAMON
 }
 
 
-
-
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  email String @unique
-  
-  gender Gender?
-  role AccountRole @default(CUSTOMER)
-  account_type AccountType @default(BASIC)
-
-  full_name String
-  phone_number String?
-  googleId String? @unique
-  password String?
-  avatar String
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  gender        Gender
+  role          Roles
+  full_name     String
+  phone_number  String    @unique
+  password      String
+  avatar        String?
   date_of_birth DateTime?
-  address String?
-  rank Rank @default(BRONZE)
-  point Int?
-  email_verified Boolean @default(false)
-
-  access_token String @default("")
-  refresh_token String @default("")
-
-  deleted   Boolean  @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  address       String?
+  access_token  String?
+  refresh_token String?
+  deleted       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  profile       Profile?
+}
+type Profile {
+  customerProfile CustomerProfile?  // Embedded Customer profile
+  stylistProfile  StylistProfile?   // Embedded Stylist profile
+  // adminProfile    AdminProfile?     // Embedded Admin profile 
 }
 
+type CustomerProfile {
+  rank    Rank @default(BRONZE)
+  rewards Int @default(0)
+}
 
-model Stylist {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  full_name String @unique
-  phone_number String @unique
-  email String @unique
-  experience String @default("no experience")
-  avatar String @default("https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg")
-  rating Float @default(0)
-  work_schedule DateTime[] @default([])
-  position String? @default("Stylist")
-  gender Gender? @default(UNKNOWN)
-  isActive Boolean @default(false)
-  access_token String @default("")
-  refresh_token String @default("")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+type StylistProfile {
+  experience String @default("1 năm")
+  reviews    Int @default(0)
+  isWorking  Boolean @default(true)
 }
