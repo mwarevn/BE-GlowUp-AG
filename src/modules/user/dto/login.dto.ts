@@ -5,16 +5,19 @@ import {
   IsOptional,
   IsNotEmpty,
   IsDefined,
+  IsNumber,
+  IsMobilePhone,
+  Length,
 } from 'class-validator';
 
 export class LoginDto {
-  @IsEmail({}, { message: 'Email không đúng định dạng !' })
-  @IsOptional()
-  readonly email?: string;
-
-  @IsString()
-  @IsOptional()
-  readonly username?: string;
+  @IsMobilePhone(
+    'vi-VN',
+    {},
+    { message: 'Số điện thoại có định dạng không chính xác!' },
+  )
+  @Length(10)
+  readonly phone_number?: string;
 
   @IsString()
   @IsDefined()

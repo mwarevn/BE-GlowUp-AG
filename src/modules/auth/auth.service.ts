@@ -1,17 +1,18 @@
 import {
   BadRequestException,
+  ClassSerializerInterceptor,
   HttpException,
   HttpStatus,
   Injectable,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LoginDto } from 'src/modules/user/dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { UserLoginGoogleDto } from 'src/modules/user/dto/user-login-google.dto';
-import { AccountType, User } from '@prisma/client';
 import { UserService } from 'src/modules/user/user.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+import { UserResponeEntity } from 'src/modules/user/response-entitys/user.entity';
 
 export interface JWTPayload {
   id: string;
@@ -25,75 +26,36 @@ export class AuthService {
   ) {}
 
   async loginSystem(loginDto: LoginDto, res: Response) {
-    let exitstsUser: User;
+    const matchedUser = await this.userService.getUser({
+      phone_number: loginDto.phone_number,
+    });
 
-    loginDto.email &&
-      (exitstsUser = await this.userService.getUser({
-        email: loginDto.email,
-      }));
-
-    loginDto.username &&
-      !exitstsUser &&
-      (exitstsUser = await this.userService.getUser({
-        username: loginDto.username,
-      }));
-
-    if (!exitstsUser) {
-      throw new HttpException(
-        'Tài khoản hoặc mật khẩu không chính xác!',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    if (exitstsUser.account_type !== 'BASIC') {
-      throw new BadRequestException('Phương thức đăng nhập không hợp lệ!');
+    // if phone number not found
+    if (!matchedUser) {
+      return null;
     }
 
     const isMatch = await this.verifyPassword(
       loginDto.password,
-      exitstsUser.password,
+      matchedUser.password,
     );
 
+    // if password does not match
     if (!isMatch) {
-      throw new HttpException(
-        'Tài khoản hoặc mật khẩu không chính xác!',
-        HttpStatus.UNAUTHORIZED,
-      );
+      return null;
     }
 
-    delete exitstsUser.password;
-
-    return await this.responseAuthorizedToken(res, { id: exitstsUser.id });
-  }
-
-  async loginGoogle(req: Request, res: Response) {
-    const userLoginGoogleDto = req.user as unknown as UserLoginGoogleDto;
-
-    const exitstsUser = await this.userService.getUser({
-      googleId: userLoginGoogleDto.googleId,
-    });
-
-    if (!exitstsUser) {
-      const createdUser = await this.userService.createUser({
-        ...(userLoginGoogleDto as any),
-        account_type: AccountType.GOOGLE,
-      });
-
-      return this.responseAuthorizedToken(res, { id: createdUser.id });
-    }
-    return this.responseAuthorizedToken(res, { id: exitstsUser.id });
+    return matchedUser;
   }
 
   async logout(id: string) {
-
     return await PrismaDB.user.update({
-      where: {id},
+      where: { id },
       data: {
         access_token: null,
-        refresh_token: null
-      }
-    })
-
+        refresh_token: null,
+      },
+    });
   }
 
   async responseAuthorizedToken(res: Response, payload: JWTPayload) {

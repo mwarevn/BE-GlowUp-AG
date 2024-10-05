@@ -35,8 +35,8 @@ enum Rank {
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  gender        Gender
-  role          Roles
+  gender        Gender @default(MALE)
+  role          Roles @default(CUSTOMER)
   full_name     String
   phone_number  String    @unique
   password      String
