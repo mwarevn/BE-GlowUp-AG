@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateComboDto } from './dto/create-combo.dto';
 import { UpdateComboDto } from './dto/update-combo.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { PrismaDB } from '../prisma/prisma.extensions';
 
 @Injectable()
 export class ComboService {
-  create(createComboDto: CreateComboDto) {
-    return 'This action adds a new combo';
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async create(createComboDto: CreateComboDto) {
+    const { services, ...data } = createComboDto;
+    let serviceIds = [];
+    let set = new Set();
+    serviceIds = services.split(',').filter((id) => id.trim() !== '');
+    for (const id of serviceIds) {
+      if (!set.has(id)) {
+        set.add(id);
+      }
+    }
+    const combo = await this.prismaService.combo.create({
+      data: {
+        ...data,
+        services: Array.from(set) as string[],
+      },
+    });
+    return combo;
   }
 
   findAll() {
-    return `This action returns all combo`;
+    return PrismaDB.combo.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} combo`;
+  async findOne(id: string) {
+    return await PrismaDB.combo.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
-  update(id: number, updateComboDto: UpdateComboDto) {
-    return `This action updates a #${id} combo`;
+  async update(id: string, updateComboDto: UpdateComboDto) {
+    const { services, ...data } = updateComboDto;
+    let serviceIds = [];
+    let set = new Set();
+    serviceIds = services.split(',').filter((id) => id.trim() !== '');
+    for (const id of serviceIds) {
+      if (!set.has(id)) {
+        set.add(id);
+      }
+    }
+    const combo = await this.prismaService.combo.update({
+      where: {
+        id,
+      },
+      data: {
+        ...data,
+        services: Array.from(set) as string[],
+      },
+    });
+    return combo;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} combo`;
+  async remove(id: string) {
+    return await PrismaDB.combo.delete({
+      where: {
+        id,
+      },
+    });
   }
 }
