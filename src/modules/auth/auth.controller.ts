@@ -24,12 +24,15 @@ import { LoginDto } from 'src/modules/user/dto/login.dto';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
+import { RefreshTokenDTO } from 'src/modules/auth/dto/refresh-token.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
+    private jwtService: JwtService,
   ) {}
 
   @Post('register')
@@ -204,6 +207,32 @@ export class AuthController {
     }
 
     res.json({ success: true });
+  }
+
+  @Post('refresh-token')
+  async getAccessTokenFromRefreshToken(
+    @Body() refreshTokenDTO: RefreshTokenDTO,
+    @Res() res: Response,
+  ) {
+    try {
+      const payload = await this.jwtService.verifyAsync(
+        refreshTokenDTO.refresh_token,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
+      const access_token = await this.authService.generateAccessToken({
+        id: payload.id,
+      });
+
+      const options = { httpOnly: true, secure: false };
+      res.cookie('access_token', access_token, options);
+
+      res.json({ success: true, access_token });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token!');
+    }
   }
 
   // @Get('google')
