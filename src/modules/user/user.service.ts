@@ -4,12 +4,9 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { UserEntity } from 'src/modules/user/entitys/user.entity';
-import { ValidationError } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -22,7 +19,7 @@ export class UserService {
     });
 
     if (existsUser) {
-      return { error: 'Số điện thoại đã được sử dụng!' };
+      throw new Error('Số điện thoại này đã được sử dụng!');
     }
 
     const salt = await bcrypt.genSalt();
@@ -43,5 +40,13 @@ export class UserService {
   // create user with input data
   async createUser(data: any) {
     return await this.prisma.user.create({ data });
+  }
+
+  // update basic profile
+  async updateProfile(where, updateData) {
+    return await this.prisma.user.update({
+      where,
+      data: updateData,
+    });
   }
 }

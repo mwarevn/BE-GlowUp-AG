@@ -18,8 +18,8 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
-    let access_token = this.extractAccessTokenFromHeader(request);
-    const refresh_token = this.extractRefreshTokenFromHeader(request);
+    const access_token = this.extractAccessTokenFromHeader(request);
+    // const refresh_token = this.extractRefreshTokenFromHeader(request);
 
     if (!access_token) {
       throw new UnauthorizedException('Access token is missing');
@@ -41,50 +41,51 @@ export class AuthGuard implements CanActivate {
 
       // Set payload vào request
       request['user'] = detailsUser;
+      return true;
     } catch (err) {
-      // Nếu access token hết hạn, thử refresh
-      if (err.name === 'TokenExpiredError' && refresh_token) {
-        try {
-          const refreshPayload = await this.jwtService.verifyAsync(
-            refresh_token,
-            {
-              secret: process.env.JWT_REFRESH_SECRET,
-            },
-          );
+      throw new UnauthorizedException('Invalid access token!');
 
-          delete refreshPayload.exp;
-          delete refreshPayload.iat;
+      // // Nếu access token hết hạn, thử refresh
+      // if (err.name === 'TokenExpiredError' && refresh_token) {
+      //   try {
+      //     const refreshPayload = await this.jwtService.verifyAsync(
+      //       refresh_token,
+      //       {
+      //         secret: process.env.JWT_REFRESH_SECRET,
+      //       },
+      //     );
 
-          access_token = await this.jwtService.signAsync(
-            { id: refreshPayload.id },
-            {
-              secret: process.env.JWT_ACCESS_SECRET,
-              expiresIn: '8m',
-            },
-          );
+      //     delete refreshPayload.exp;
+      //     delete refreshPayload.iat;
 
-          const detailsUser = await this.userService.getUser({
-            id: refreshPayload.id,
-          });
+      //     access_token = await this.jwtService.signAsync(
+      //       { id: refreshPayload.id },
+      //       {
+      //         secret: process.env.JWT_ACCESS_SECRET,
+      //         expiresIn: '8m',
+      //       },
+      //     );
 
-          console.log('generated new access token!');
-          response.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: false,
-          });
+      //     const detailsUser = await this.userService.getUser({
+      //       id: refreshPayload.id,
+      //     });
 
-          request['user'] = detailsUser;
-        } catch (error) {
-          throw new UnauthorizedException(
-            'Refresh token is invalid or expired',
-          );
-        }
-      } else {
-        throw new UnauthorizedException('Invalid access token!');
-      }
+      //     console.log('generated new access token!');
+      //     response.cookie('access_token', access_token, {
+      //       httpOnly: true,
+      //       secure: false,
+      //     });
+
+      //     request['user'] = detailsUser;
+      //   } catch (error) {
+      //     throw new UnauthorizedException(
+      //       'Refresh token is invalid or expired',
+      //     );
+      //   }
+      // } else {
+      //   throw new UnauthorizedException('Invalid access token!');
+      // }
     }
-
-    return true;
   }
 
   private extractAccessTokenFromHeader(request: Request): string | undefined {

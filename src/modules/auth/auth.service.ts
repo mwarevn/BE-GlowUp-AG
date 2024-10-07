@@ -48,58 +48,41 @@ export class AuthService {
     return matchedUser;
   }
 
-  async logout(id: string) {
-    return await PrismaDB.user.update({
-      where: { id },
-      data: {
-        access_token: null,
-        refresh_token: null,
-      },
-    });
-  }
+  // async logout(id: string) {
+  //   return await PrismaDB.user.update({
+  //     where: { id },
+  //     data: {
+  //       access_token: null,
+  //       refresh_token: null,
+  //     },
+  //   });
+  // }
 
-  async responseAuthorizedToken(res: Response, payload: JWTPayload) {
-    const access_token = await this.generateToken(payload),
-      refresh_token = await this.generateToken(payload, 'refresh');
-
-    this.storeToken({ id: payload.id }, access_token, refresh_token);
-
-    res.cookie('access_token', access_token, { httpOnly: true, secure: false });
-    res.cookie('refresh_token', refresh_token, {
-      httpOnly: true,
-      secure: false,
-    });
-
-    const data = {
-      access_token,
-      refresh_token,
-      user: payload,
-    };
-
-    return res.status(200).json({ success: true, data });
-  }
+  // async storeToken(where: any, access_token: string, refresh_token: string) {
+  //   return await PrismaDB.user.update({
+  //     where,
+  //     data: {
+  //       access_token,
+  //       refresh_token,
+  //     },
+  //   });
+  // }
 
   async verifyPassword(password: string, hash: string): Promise<boolean> {
     return await bcrypt.compare(password, hash);
   }
 
-  async storeToken(where: any, access_token: string, refresh_token: string) {
-    return await PrismaDB.user.update({
-      where,
-      data: {
-        access_token,
-        refresh_token,
-      },
+  async generateAccessToken(payload: any) {
+    return await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '8m',
     });
   }
 
-  async generateToken(payload, type = 'access') {
+  async generateRefreshToken(payload: any) {
     return await this.jwtService.signAsync(payload, {
-      secret:
-        type == 'access'
-          ? process.env.JWT_ACCESS_SECRET
-          : process.env.JWT_REFRESH_SECRET,
-      expiresIn: type == 'access' ? '8m' : '8d',
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '8d',
     });
   }
 }

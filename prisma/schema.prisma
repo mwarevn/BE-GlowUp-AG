@@ -51,8 +51,8 @@ model User {
   profile       Profile?
 }
 type Profile {
-  customerProfile CustomerProfile?  // Embedded Customer profile
-  stylistProfile  StylistProfile?   // Embedded Stylist profile
+  customer CustomerProfile?  // Embedded Customer profile
+  stylist  StylistProfile?   // Embedded Stylist profile
   // adminProfile    AdminProfile?     // Embedded Admin profile 
 }
 
