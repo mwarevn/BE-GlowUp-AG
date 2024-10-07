@@ -1,18 +1,9 @@
-import {
-  BadRequestException,
-  ClassSerializerInterceptor,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoginDto } from 'src/modules/user/dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/modules/user/user.service';
-import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { UserResponeEntity } from 'src/modules/user/response-entitys/user.entity';
 
 export interface JWTPayload {
   id: string;
