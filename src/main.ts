@@ -50,7 +50,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
   // end
 
-  await app.listen(PORT).then(() => {
+  await app.listen(PORT, protectAPI).then(() => {
     console.log('Application running on PORT: ' + PORT);
   });
 }
