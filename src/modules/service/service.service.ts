@@ -21,12 +21,12 @@ export class ServiceService {
   }
 
   findAll() {
-    const services = this.prisma.service.findMany();
+    const services = PrismaDB.combo.findMany();
     return services;
   }
 
   findOne(id: string) {
-    const service = this.prisma.service.findUnique({
+    const service = PrismaDB.combo.findUnique({
       where: { id },
     });
     return service;
