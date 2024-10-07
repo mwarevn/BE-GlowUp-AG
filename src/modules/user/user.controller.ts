@@ -7,17 +7,22 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Req,
   Res,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Roles } from '@prisma/client';
 import { Request, Response } from 'express';
+import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+import { UploadService } from 'src/modules/upload/upload.service';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
 import { UserService } from 'src/modules/user/user.service';
 
