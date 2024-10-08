@@ -37,7 +37,7 @@ model User {
   gender        Gender    @default(MALE)
   role          Roles     @default(CUSTOMER)
   full_name     String
-  phone_number  String    @unique
+  phone_number  String   // @unique
   password      String
   avatar        String?
   date_of_birth DateTime?

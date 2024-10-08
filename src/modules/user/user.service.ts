@@ -7,6 +7,8 @@ import {
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
+import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+import { selectFileds } from 'src/common/utils';
 
 @Injectable()
 export class UserService {
@@ -34,7 +36,7 @@ export class UserService {
 
   // get unique user by codition
   async getUser(where: any) {
-    return await this.prisma.user.findUnique({ where });
+    return await this.prisma.user.findFirst({ where });
   }
 
   // create user with input data
@@ -47,12 +49,13 @@ export class UserService {
     return await this.prisma.user.update({
       where,
       data: updateData,
+      select: selectFileds,
     });
   }
 
   // getAll
   async getAll(where) {
-    return this.prisma.user.findMany({
+    return PrismaDB.user.findMany({
       where,
       select: {
         id: true,
@@ -65,6 +68,17 @@ export class UserService {
         address: true,
         profile: true,
       },
+    });
+  }
+
+  // update avatar
+  async updateAvatar(id: string, avatar: string) {
+    return await PrismaDB.user.update({
+      where: { id },
+      data: {
+        avatar,
+      },
+      select: selectFileds,
     });
   }
 }
