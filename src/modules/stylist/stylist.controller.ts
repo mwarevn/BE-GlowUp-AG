@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  NotFoundException,
+  Res,
+} from '@nestjs/common';
 import { StylistService } from './stylist.service';
 import { CreateStylistDto } from './dto/create-stylist.dto';
 import { UpdateStylistDto } from './dto/update-stylist.dto';
+import { Response } from 'express';
 
 @Controller('stylist')
 export class StylistController {
@@ -13,8 +24,13 @@ export class StylistController {
   }
 
   @Get()
-  findAll() {
-    return this.stylistService.findAll();
+  async findAll(@Res() res: Response) {
+    const stylists = await this.stylistService.findAll();
+
+    if (!stylists) {
+      throw new NotFoundException();
+    }
+    return res.json({ success: true, data: stylists });
   }
 
   @Get(':id')

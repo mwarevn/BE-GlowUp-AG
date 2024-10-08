@@ -49,4 +49,22 @@ export class UserService {
       data: updateData,
     });
   }
+
+  // getAll
+  async getAll(where) {
+    return this.prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        gender: true,
+        role: true,
+        full_name: true,
+        phone_number: true,
+        avatar: true,
+        date_of_birth: true,
+        address: true,
+        profile: true,
+      },
+    });
+  }
 }
