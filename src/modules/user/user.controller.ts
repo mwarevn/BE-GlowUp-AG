@@ -11,6 +11,7 @@ import {
   Put,
   Req,
   Res,
+  ServiceUnavailableException,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -21,6 +22,7 @@ import { Request, Response } from 'express';
 import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
+import { uploadSingleImageThirdParty } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { UploadService } from 'src/modules/upload/upload.service';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
@@ -55,9 +57,13 @@ export class UserController {
     const accepted = user['id'] === id || user['role'] === Roles.ADMIN;
 
     if (!accepted) {
-      throw new ForbiddenException(
-        'Bạn không có quyền thay đổi thông tin người dùng này!',
-      );
+      throw new ForbiddenException();
+    }
+
+    if (updateProfileDTO.profile) {
+      if (user['role'] != Roles.ADMIN) {
+        throw new ForbiddenException();
+      }
     }
 
     try {
@@ -66,10 +72,48 @@ export class UserController {
         updateProfileDTO,
       );
 
-      res.json({ success: true });
+      res.json({ success: true, data: updatedUser });
     } catch (error) {
       console.log(error.message);
       throw new BadRequestException('Kiểm tra lại định dạng dữ liệu!');
     }
   }
+
+  @Patch('update-avatar/:id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(uploadSingleImageInterceptor())
+  async updateAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const user = req['user'];
+
+    if (user['id'] !== id) {
+      throw new ForbiddenException();
+    }
+
+    try {
+      const imgData = await uploadSingleImageThirdParty(req);
+
+      if (!imgData.success) {
+        throw new ServiceUnavailableException();
+      }
+
+      const avatar = imgData.data.link;
+
+      const updatedUser = await this.userService.updateAvatar(id, avatar);
+
+      if (!updatedUser) {
+        throw new BadRequestException();
+      }
+
+      res.json({ success: true, data: updatedUser });
+    } catch (error) {
+      throw new ServiceUnavailableException();
+    }
+  }
+
+  // TODO: update phone number - update-phone-number
 }
