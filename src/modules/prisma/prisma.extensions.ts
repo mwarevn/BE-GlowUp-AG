@@ -7,6 +7,8 @@ export const PrismaDB = prisma.$extends(
   createSoftDeleteExtension({
     models: {
       User: true,
+      Service: true,
+      Combo: true,
     },
   }),
 );

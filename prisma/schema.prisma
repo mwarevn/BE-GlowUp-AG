@@ -32,11 +32,10 @@ enum Rank {
   DIAMON
 }
 
-
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  gender        Gender @default(MALE)
-  role          Roles @default(CUSTOMER)
+  gender        Gender    @default(MALE)
+  role          Roles     @default(CUSTOMER)
   full_name     String
   phone_number  String    @unique
   password      String
@@ -49,20 +48,45 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   profile       Profile?
+  
 }
+
 type Profile {
-  customer CustomerProfile?  // Embedded Customer profile
-  stylist  StylistProfile?   // Embedded Stylist profile
+  customer CustomerProfile? // Embedded Customer profile
+  stylist  StylistProfile? // Embedded Stylist profile
   // adminProfile    AdminProfile?     // Embedded Admin profile 
 }
 
 type CustomerProfile {
   rank    Rank @default(BRONZE)
-  rewards Int @default(0)
+  rewards Int  @default(0)
 }
 
 type StylistProfile {
-  experience String @default("1 năm")
-  reviews    Int @default(0)
+  experience String  @default("1 năm")
+  reviews    Int     @default(0)
   isWorking  Boolean @default(true)
+}
+
+model Service {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  price       String
+  description String
+  picture     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deleted     Boolean  @default(false)
+}
+
+model Combo {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  price       String?
+  description String
+  picture     String?
+  services    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deleted     Boolean  @default(false)
 }
