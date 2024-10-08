@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UploadedFile,
+} from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { PrismaDB } from '../prisma/prisma.extensions';
 
 @Injectable()
 export class ServiceService {
-  create(createServiceDto: CreateServiceDto) {
-    return 'This action adds a new service';
+  constructor(private prisma: PrismaService) {}
+
+  async create(createServiceDto: CreateServiceDto) {
+    const service = await this.prisma.service.create({
+      data: createServiceDto,
+    });
+    return service;
   }
 
   findAll() {
-    return `This action returns all service`;
+    const services = PrismaDB.combo.findMany();
+    return services;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} service`;
+  findOne(id: string) {
+    const service = PrismaDB.combo.findUnique({
+      where: { id },
+    });
+    return service;
   }
 
-  update(id: number, updateServiceDto: UpdateServiceDto) {
-    return `This action updates a #${id} service`;
+  update(id: string, updateServiceDto: UpdateServiceDto) {
+    const service = this.prisma.service.update({
+      where: { id },
+      data: updateServiceDto,
+    });
+    return service;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} service`;
+  remove(id: string) {
+    return PrismaDB.service.delete({
+      where: { id },
+    });
   }
 }
