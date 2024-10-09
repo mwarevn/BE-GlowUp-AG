@@ -84,17 +84,6 @@ export class StylistController {
     return { success: true, data: existsStylist };
   }
 
-  @Patch(':id')
-  @UseGuards(AuthGuard)
-  async update(
-    @Param('id') id: string,
-    @Body() updateStylistDto: UpdateStylistDto,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    ///
-  }
-
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

@@ -24,7 +24,6 @@ import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
 import { uploadSingleImageThirdParty } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { UploadService } from 'src/modules/upload/upload.service';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
 import { UserService } from 'src/modules/user/user.service';
 
@@ -52,6 +51,8 @@ export class UserController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
+    console.log(updateProfileDTO);
+
     const user = req['user'];
     // TODO: thêm phần quyền cập nhật - user chỉnh profile - stylist chỉnh profile và profile users
     const accepted = user['id'] === id || user['role'] === Roles.ADMIN;

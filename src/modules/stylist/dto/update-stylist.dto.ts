@@ -1,5 +1,6 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateStylistDto } from './create-stylist.dto';
+import { OmitType } from '@nestjs/swagger';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
 
-export class UpdateStylistDto extends PartialType(UpdateProfileUserDTO) {}
+export class UpdateStylistDto extends OmitType(UpdateProfileUserDTO, [
+  'profile',
+]) {}

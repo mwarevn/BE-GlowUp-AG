@@ -10,7 +10,7 @@ import {
   IsMobilePhone,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class RegisterAccountDTO {
   @IsString({ message: 'Họ và tên không đúng định dạng!' })
   @MaxLength(100, { message: 'Họ và tên không được dài quá 50 ký tự!' })
   readonly full_name: string;
