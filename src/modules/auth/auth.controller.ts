@@ -19,8 +19,8 @@ import { Request, Response } from 'express';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { ChangePasswdDTO } from 'src/modules/auth/dto/change-password.dto';
-import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
-import { LoginDto } from 'src/modules/user/dto/login.dto';
+import { RegisterAccountDTO } from 'src/modules/auth/dto/register-account.dto';
+import { LoginDTO } from 'src/modules/auth/dto/login.dto';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
@@ -39,11 +39,11 @@ export class AuthController {
   async registerAccount(
     @Req() req: Request,
     @Res() res: Response,
-    @Body() createUserDto: CreateUserDto,
+    @Body() registerAccountDTO: RegisterAccountDTO,
   ) {
     try {
       const createdAccount =
-        await this.userService.registerAccount(createUserDto);
+        await this.authService.registerAccount(registerAccountDTO);
 
       res.json({ success: true, data: createdAccount });
     } catch (error) {
@@ -53,10 +53,10 @@ export class AuthController {
 
   @Post('login')
   @UseInterceptors(ClassSerializerInterceptor)
-  async loginSystem(@Body() loginDto: LoginDto, @Res() res: Response) {
+  async loginSystem(@Body() loginDto: LoginDTO, @Res() res: Response) {
     try {
       const validUser = await this.authService.loginSystem(loginDto, res);
-      if (!validUser) {
+      if (!validUser || !validUser.password) {
         throw new UnauthorizedException(
           'Số điện thoại hoặc mật khẩu không chính xác!',
         );
@@ -83,7 +83,7 @@ export class AuthController {
         data: validUser,
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new UnauthorizedException(
         'Số điện thoại hoặc mật khẩu không chính xác!',
       );

@@ -16,6 +16,8 @@ import {
   IsMobilePhone,
   Length,
 } from 'class-validator';
+import { CustomerProfileDTO } from 'src/modules/customer/dto/customer.profile.dto';
+import { StylistProfileDTO } from 'src/modules/stylist/dto/stylist.profile.dto';
 
 export class UpdateProfileUserDTO {
   @IsOptional()
@@ -34,18 +36,5 @@ export class UpdateProfileUserDTO {
   address: string;
 
   @IsOptional()
-  profile:
-    | {
-        customer: {
-          rank: Rank;
-          rewards: number;
-        };
-      }
-    | {
-        stylist: {
-          experience: string;
-          reviews: number;
-          isWorking: boolean;
-        };
-      };
+  profile: CustomerProfileDTO | StylistProfileDTO;
 }

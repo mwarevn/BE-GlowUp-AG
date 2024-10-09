@@ -20,13 +20,10 @@ export class StylistService {
     if (existsStylist) {
       throw new Error('Số điện thoại này đã được sử dụng!');
     }
-
-    const hashedPassword = await hashPasswd('12345678');
     return PrismaDB.user.create({
       data: {
         ...createStylistDto,
         role: Roles.STYLIST,
-        password: hashedPassword,
       },
       select: selectFileds,
     });

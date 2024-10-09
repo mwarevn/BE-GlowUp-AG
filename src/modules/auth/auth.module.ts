@@ -4,12 +4,11 @@ import { AuthService } from './auth.service';
 import { UserModule } from 'src/modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { GoogleStrategy } from 'src/modules/auth/google.strategy';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, PrismaService],
+  providers: [AuthService, PrismaService],
   imports: [
     UserModule,
     JwtModule.register({
