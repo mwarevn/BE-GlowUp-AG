@@ -1,33 +1,9 @@
 import { Gender, Roles } from '@prisma/client';
 import { IsMobilePhone, IsOptional, IsString } from 'class-validator';
+import { StylistProfileDTO } from 'src/modules/stylist/dto/stylist.profile.dto';
+import { CreateUserDTO } from 'src/modules/user/dto/user.creaete.dto';
 
-export class CreateStylistDto {
-  @IsString()
-  gender: Gender;
-
-  @IsString()
-  full_name: string;
-
-  @IsMobilePhone('vi-VN')
-  phone_number: string;
-
+export class CreateStylistDto extends CreateUserDTO {
   @IsOptional()
-  profile: {
-    stylist: {
-      reviews: number;
-      experience: string;
-      isWorking: boolean;
-    };
-  };
-
-  @IsOptional()
-  date_of_birth: Date;
-
-  @IsString()
-  @IsOptional()
-  address: string;
-
-  @IsOptional()
-  @IsString()
-  avatar: string;
+  profile: StylistProfileDTO;
 }
